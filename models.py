@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import DATABASE_URI
 from casting_agency_app import app
 from sqlalchemy.orm import relationship
-from config import logger
+from utils import logger
 db = SQLAlchemy()
 
 '''
@@ -82,7 +82,7 @@ class CrudHelper:
             logger.error('Cannot delete record as model class or filter by for delete is unknown!!!!')
             return None
         try:
-            instance = db.session.query(model_class).filter(filter_by)
+            instance = db.session.query(model_class).filter(filter_by).one()
             if instance is None:
                 logger.error(
                     f'Cannot find the instance for the given model class {model_class} with filter {filter_by}')
@@ -94,13 +94,20 @@ class CrudHelper:
             logger.error(f'Cannot delete {model_class} instance!!!! Reason: {str(e)}')
             return None
 
+    @staticmethod
+    def get_all(model_class):
+        return db.session.query(model_class).all()
+
+    @staticmethod
+    def get(model_class, filter_by):
+        return db.session.query(model_class).filter(filter_by).one()
 
 class Movie(db.Model):
     __tablename__ = 'movies'
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     release_date = Column(DateTime, nullable=False)
-    actors = relationship('Actor', secondary= 'movie_actor_link')
+    actors = relationship('Actor', secondary= 'movies_actors_link')
 
     @classmethod
     def insert(cls,**kwargs):
@@ -115,13 +122,14 @@ class Movie(db.Model):
         return CrudHelper.delete(filter_by=filter_by, model_class=cls)
 
 
+
 class Actor(db.Model):
     __tablename__ = 'actors'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     age = Column(Integer, nullable=False)
     gender = Column(String, nullable=False)
-    movies = relationship('Movie', secondary='movie_actor_link')
+    movies = relationship('Movie', secondary='movies_actors_link')
 
     @classmethod
     def insert(cls, **kwargs):
@@ -136,8 +144,9 @@ class Actor(db.Model):
         return CrudHelper.delete(filter_by=filter_by, model_class=cls)
 
 
+
 class MovieActorLink(db.Model):
-    __tablename__ ="movies_actors_link"
+    __tablename__ = "movies_actors_link"
     movie_id = Column(Integer, ForeignKey('movies.id'), primary_key= True)
     actor_id = Column(Integer, ForeignKey('actors.id'), primary_key = True)
 
