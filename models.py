@@ -64,7 +64,7 @@ class CrudHelper:
             logger.error('Cannot update Model as model or filter by for update is unknown!!!!')
             return None
         try:
-            instance = db.session.query(model_class).filter(filter_by)
+            instance = db.session.query(model_class).filter(filter_by).one()
             if instance is None:
                 logger.error(f'Cannot find the instance for the given model class {model_class} with filter {filter_by}')
                 return None
@@ -95,7 +95,22 @@ class CrudHelper:
             return None
 
     @staticmethod
-    def get_all(model_class):
+    def delete_all(filter_by, model_class=None):
+        if model_class is None or filter_by is None:
+            logger.error('Cannot delete record as model class or filter by for delete is unknown!!!!')
+            return None
+        try:
+            instances_deleted = db.session.query(model_class).filter(filter_by).delete()
+            db.session.commit()
+            return instances_deleted >= 1
+        except Exception as e:
+            logger.error(f'Cannot delete {model_class} instance!!!! Reason: {str(e)}')
+            return None
+
+    @staticmethod
+    def get_all(model_class, filter_by=None):
+        if filter_by is not None:
+            return db.session.query(model_class).filter(filter_by).all()
         return db.session.query(model_class).all()
 
     @staticmethod

@@ -181,3 +181,143 @@ id = 3
     "success": false
 }
 ```
+
+### 7. **Update Actor**: `PATCH /v1/actors/{id}`
+* **Request:**
+```
+id=1
+
+{
+    Actor attributes, [case sensitive]
+}
+```
+
+* **Response:**
+
+**STATUS: 200**
+```
+{
+    "data": {
+       "age": 30,
+       "gender": "male",
+       "id": 2,
+       "name": "Praveen"
+    },
+    "success": true
+}
+```
+
+### 8. **Update Movie**: `PATCH /v1/movies/{id}`
+* **Request:**
+```
+id=1
+
+{
+    Actor attributes, [case sensitive]
+}
+```
+
+* **Response:**
+
+**STATUS: 200**
+```
+{
+    "data": {
+        "id": 2,
+        "release_date": "Wed, 20 Jan 2021 00:00:00 GMT",
+        "title": "Avengers Endgame"
+    },
+    "success": true
+}
+```
+
+### 9. **Add an actor to movie** `POST /v1/movie_cast`
+* **Request:**
+```
+
+{
+    "movie_id": 1,
+    "actor_id":2,
+}
+```
+
+* **Response:**
+
+**STATUS: 200**
+```
+{
+    "success": true
+}
+```
+
+### 10. **Fetch Actor's Movies**: `GET /v1/movie_cast/actors/{id}`
+* **Request:**
+```
+id = 2
+```
+
+* **Response:**
+
+**STATUS: 200**
+```
+{
+    "data": [
+        {
+            "id": 2,
+            "release_date": "Wed, 20 Jan 2021 00:00:00 GMT",
+            "title": "Avengers Endgame"
+        }
+    ],
+    "success": true
+}
+```
+
+### 11. **Fetch Movie's Actors**: `GET /v1/movie_cast/movies/{id}`
+* **Request:**
+```
+id = 2
+```
+
+* **Response:**
+
+**STATUS: 200**
+```
+{
+    "data": [
+        {
+            "age": 30,
+            "gender": "male",
+            "id": 2,
+            "name": "Praveen"
+        }
+    ],
+    "success": true
+}
+```
+
+### 12. **Remove Actor From The Movie**: `DELETE /v1/movie_cast`
+* **Request:**
+```
+?actor_id=1&movie_id=2
+```
+
+* **Response:**
+
+**STATUS: 200**
+```
+{
+    "success": true
+}
+```
+
+### Exceptions Template
+
+---
+**STATUS: 4xx or 5xx**
+```
+
+{
+    "msg": "error message",
+    "success": false
+}
+```
