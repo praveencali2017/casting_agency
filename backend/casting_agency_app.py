@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template
 from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
-from utils import logger, to_dict
+from backend.utils import logger,to_dict
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
