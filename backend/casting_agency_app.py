@@ -3,7 +3,7 @@ from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
 from utils import logger, to_dict
 from flask_cors import CORS
-app = Flask(__name__, static_folder='../front-end/build/static', template_folder='../front-end/build')
+app = Flask(__name__)
 CORS(app)
 
 
