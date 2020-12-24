@@ -1,13 +1,20 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
 from utils import logger, to_dict
-app = Flask(__name__)
+from flask_cors import CORS
+app = Flask(__name__, static_folder='../front-end/build/static', template_folder='../front-end/build')
+CORS(app)
 
 
-@app.route("/", methods=['GET'])
+@app.route("/")
+def dashboard():
+    return render_template('index.html')
+
+
+@app.route("/welcome", methods=['GET'])
 def app_index():
-    return 'Casting app is working fine. Welcome !!!!'
+    return jsonify({'status': True, 'msg': 'Casting app is working fine. Welcome !!!!'})
 
 
 # Actor API
