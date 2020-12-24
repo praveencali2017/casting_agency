@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template
 from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
-from utils import logger,to_dict
+from backend.utils import logger, to_dict
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +20,7 @@ def app_index():
 # Actor API
 @app.route("/v1/actors", methods=['POST'])
 def create_actor():
-    from models import Actor
+    from backend.models import Actor
     req_data = request.get_json()
     actor = Actor.insert(**req_data)
     return build_orm_json(actor, fail_err_msg='Not able to insert new actor!!!')
@@ -28,14 +28,14 @@ def create_actor():
 
 @app.route("/v1/actors", methods=['GET'])
 def get_actors():
-    from models import Actor, CrudHelper
+    from backend.models import Actor, CrudHelper
     actors = CrudHelper.get_all(Actor)
     return jsonify({'success': True, 'data': [to_dict(actor) for actor in actors]})
 
 
 @app.route("/v1/actors/<actor_id>", methods=['DELETE'])
 def delete_actor(actor_id):
-    from models import Actor
+    from backend.models import Actor
     filter_by = (Actor.id == actor_id)
     actor = Actor.delete(filter_by)
     if actor is None:
@@ -45,14 +45,14 @@ def delete_actor(actor_id):
 
 @app.route("/v1/actors/<actor_id>", methods=['GET'])
 def get_actor(actor_id):
-    from models import Actor, CrudHelper
+    from backend.models import Actor, CrudHelper
     actor = CrudHelper.get(Actor, (Actor.id == actor_id))
     return build_orm_json(actor, fail_err_msg='Not able to fetch actor!!!')
 
 
 @app.route("/v1/actors/<actor_id>", methods=['PATCH'])
 def update_actor(actor_id):
-    from models import Actor
+    from backend.models import Actor
     req_data = request.get_json()
     # We should not inject id, since we are directly passing request data to model's attributes
     if 'id' in req_data:
@@ -64,14 +64,14 @@ def update_actor(actor_id):
 # Movies API
 @app.route("/v1/movies", methods=['GET'])
 def get_movies():
-    from models import Movie, CrudHelper
+    from backend.models import Movie, CrudHelper
     movies = CrudHelper.get_all(Movie)
     return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
 
 
 @app.route("/v1/movies", methods=['POST'])
 def create_movie():
-    from models import Movie
+    from backend.models import Movie
     req_data = request.get_json()
     movie = Movie.insert(**req_data)
     return build_orm_json(movie, fail_err_msg='Not able to insert new actor')
@@ -79,14 +79,14 @@ def create_movie():
 
 @app.route("/v1/movies/<movie_id>", methods=['GET'])
 def get_movie(movie_id):
-    from models import Movie, CrudHelper
+    from backend.models import Movie, CrudHelper
     movie = CrudHelper.get(Movie, (Movie.id == movie_id))
     return build_orm_json(movie, fail_err_msg='Not able to fetch movie!!!')
 
 
 @app.route("/v1/movies/<movie_id>", methods=['DELETE'])
 def delete_movie(movie_id):
-    from models import Movie
+    from backend.models import Movie
     filter_by = (Movie.id == movie_id)
     movie = Movie.delete(filter_by)
     return build_orm_json(movie, fail_err_msg='Not able to delete movie!!!')
@@ -94,7 +94,7 @@ def delete_movie(movie_id):
 
 @app.route("/v1/movies/<movie_id>", methods=['PATCH'])
 def update_movie(movie_id):
-    from models import Movie
+    from backend.models import Movie
     req_data = request.get_json()
     # We should not inject id, since we are directly passing request data to model's attributes
     if 'id' in req_data:
@@ -106,7 +106,7 @@ def update_movie(movie_id):
 # Association APIS [Movie and Actor]
 @app.route("/v1/movie_cast", methods=['POST'])
 def create_movie_cast():
-    from models import MovieActorLink
+    from backend.models import MovieActorLink
     req_data = request.get_json()
     movie_cast = MovieActorLink.insert(**req_data)
     if movie_cast is None:
@@ -116,7 +116,7 @@ def create_movie_cast():
 
 @app.route("/v1/movie_cast/movies/<movie_id>", methods=['GET'])
 def fetch_movie_actors(movie_id):
-    from models import Movie, CrudHelper
+    from backend.models import Movie, CrudHelper
     movie = CrudHelper.get(Movie, (Movie.id == movie_id))
     if movie is None:
         return jsonify({'success': False, 'msg': f'Movie with the given id {movie_id} does not exist!!!'})
@@ -126,7 +126,7 @@ def fetch_movie_actors(movie_id):
 
 @app.route("/v1/movie_cast/actors/<actor_id>", methods=['GET'])
 def fetch_actor_movies(actor_id):
-    from models import Actor, CrudHelper
+    from backend.models import Actor, CrudHelper
     actor = CrudHelper.get(Actor, (Actor.id == actor_id))
     if actor is None:
         return jsonify({'success': False, 'msg': f'Actor with the given id {actor_id} does not exist!!!'})
@@ -137,7 +137,7 @@ def fetch_actor_movies(actor_id):
 @app.route("/v1/movie_cast", methods=['DELETE'])
 def remove_actor_from_movie():
     from sqlalchemy import and_
-    from models import MovieActorLink, CrudHelper
+    from backend.models import MovieActorLink, CrudHelper
     actor_id = request.args.get('actor_id', None)
     movie_id = request.args.get('movie_id', None)
     if movie_id is None or actor_id is None:
