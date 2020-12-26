@@ -3,8 +3,10 @@ from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
 from backend.utils import logger, to_dict
 from flask_cors import CORS
-app = Flask(__name__)
+# Point to the custom static and templates folder that we created!!!!!
+app = Flask(__name__, static_folder='./backend/static', template_folder='./backend/templates')
 CORS(app)
+app.logger.handlers = logger.handlers
 
 
 @app.route("/")
