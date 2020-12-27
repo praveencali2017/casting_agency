@@ -1,50 +1,53 @@
 import React, { useState } from 'react';
 import ActorsCard from './ActorsCard';
 import MoviesCard from './MoviesCard';
-import { MOVIES_API, ACTORS_API } from '../utils/service';
+import {addActor, addMovie, ajaxRequestPost, MOVIE_CAST_API} from '../utils/service';
+import MoviesCastCard from './MoviesCastCard';
 function Dashboard(props) {
   const [isMovieUpdated, setIsMovieUpdated] = useState(false);
   const [isActorUpdated, setIsActorUpdated] = useState(false);
+  const [isMovieActorUpdated, setMovieActorUpdated] = useState(false);
+  const [moviesList, setMoviesList] = useState([]);
+  const [actorsList, setActorsList] = useState([]);
   
   const addNewMovie = function(){
     let reqData = {
       'title': document.getElementById('movieTitleTxt').value,
       'release_date': document.getElementById('movieReleaseDateVal').value
     };
-    fetch(MOVIES_API, {
-      method:'POST',
-      body: JSON.stringify(reqData),
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      })})
-    .then(response => response.json())
-    .then(resData=>{
-        if(resData && resData.success){
-          setIsMovieUpdated(true);
-        }
-        document.getElementById("dismissMovieModalBtn").click();
-    }) 
+    addMovie(reqData, (resData)=>{
+      if(resData && resData.success){
+        setIsMovieUpdated(true);
+      }
+      document.getElementById("dismissMovieModalBtn").click();
+    });
   };
+
   const addNewActor = function(){
     let reqData = {
       'name': document.getElementById('actorNameTxt').value,
       'age': document.getElementById('actorAgeTxt').value,
       'gender': document.querySelector('input[name = gender]:checked').value
     };
-    fetch(ACTORS_API, {
-      method:'POST',
-      body: JSON.stringify(reqData),
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      })})
-    .then(response => response.json())
-    .then(resData=>{
-        if(resData && resData.success){
-          setIsActorUpdated(true);
-        }
-        document.getElementById("dismissActorModalBtn").click();
-    }) 
+    addActor(reqData, (resData)=>{
+      if(resData && resData.success){
+        setIsActorUpdated(true);
+      }
+      document.getElementById("dismissActorModalBtn").click();
+    });
+  };
+
+  const addActorToMovie = function(){
+    ajaxRequestPost(MOVIE_CAST_API, {
+      'movie_id': document.getElementById('selectedMovie').value,
+      'actor_id': document.getElementById('selectedActor').value
+    }, (resData)=>{
+      if(resData.success){
+        setMovieActorUpdated(true);
+      }
+    });
   }
+
 
   const createMovieModal = function(){
     return <div className="modal fade" id="addMovieModal" role="dialog">
@@ -116,25 +119,75 @@ function Dashboard(props) {
   return (
     <div className='row'>
       <div className='col'>
-        {/* Body */}
-        <div className='row'>
-        <div className='col'>
-          <h3>Movies</h3>
-          <div className='btn-primary btn-lg' id='createMovieBtn' data-toggle="modal" data-target="#addMovieModal">Create Movie</div>
-          {createMovieModal()}
-          <div className='container' style={{marginLeft:15, marginTop:10}}>
-            <MoviesCard loadMovies={isMovieUpdated}/>
+          <div className="nav nav-tabs" id="dashboardTab" role="tablist">
+              <a className="nav-item nav-link active" data-toggle="tab" href="#viewContent" role="tab">View/Edit</a>
+              <a className="nav-item nav-link" data-toggle="tab" href="#manageCastContent" role="tab">Manage Cast</a>
           </div>
-        </div>
-        <div className='col'>
-          <h3>Actors</h3>
-          <div className='btn-primary btn-lg' id='createActorBtn' data-toggle="modal" data-target="#addActorModal">Create Actor</div>
-          {createActorModal()}
-          <div className='container' style={{marginLeft:15, marginTop:10}}>
-            <ActorsCard loadActors={isActorUpdated}/>
+          <div className="tab-content" id="tabDashboardContent">
+            <div className="tab-pane fade show active" id="viewContent" role="tabpanel" >
+              <div className="row">
+                <div className='col'>
+                  <h3>Movies</h3>
+                  <div className='btn-primary btn-lg' id='createMovieBtn' data-toggle="modal" data-target="#addMovieModal">Create Movie</div>
+                    {createMovieModal()}
+                  <div className='container' style={{marginLeft:15, marginTop:10}}>
+                    <MoviesCard loadMovies={isMovieUpdated} loadMoviesList={(resData)=>{
+                      setMoviesList(resData);
+                      setIsMovieUpdated(false);
+                      }}/>
+                  </div>
+                </div>
+                <div className='col'>
+                  <h3>Actors</h3>
+                  <div className='btn-primary btn-lg' id='createActorBtn' data-toggle="modal" data-target="#addActorModal">Create Actor</div>
+                    {createActorModal()}
+                  <div className='container' style={{marginLeft:15, marginTop:10}}>
+                    <ActorsCard loadActors={isActorUpdated} loadActorsList={(resData)=>{
+                      setActorsList(resData);
+                      setIsActorUpdated(false);
+                      }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="tab-pane fade" id="manageCastContent" role="tabpanel">
+              <div className="row">
+                <div className="col">
+                  <div className="row" style={{marginTop:20}}>
+                    <div className="col">
+                      <select className="custom-select" id="selectedMovie">
+                        <option disabled selected>Select Movie</option>
+                        {moviesList.map((movie)=>{
+                          return <option value={movie.id}>{movie.title}</option>
+                        })}
+                      </select>
+                    </div>
+                    <div className="col">
+                      <select className="custom-select" id="selectedActor">
+                        <option disabled selected>Select Actor</option>
+                        {actorsList.map((actor)=>{
+                          return <option value={actor.id}>{actor.name}</option>
+                        })}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="row" style={{marginTop:10}}>
+                    <div className="col">
+                      <div className="btn btn-success btn-lg btn-block" onClick={addActorToMovie}>
+                        Cast to the movie
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col">
+                      <MoviesCastCard isUpdated={isMovieActorUpdated} disableIsUpdated={()=> setMovieActorUpdated(false)}/>
+                    </div>
+                  </div>    
+                </div>
+                
+              </div>
+            </div>
           </div>
-        </div>
-        </div>
       </div>
     </div>
 

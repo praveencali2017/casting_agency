@@ -106,7 +106,7 @@ def update_movie(movie_id):
 
 
 # Association APIS [Movie and Actor]
-@app.route("/v1/movie_cast", methods=['POST'])
+@app.route("/v1/movies_cast", methods=['POST'])
 def create_movie_cast():
     from backend.models import MovieActorLink
     req_data = request.get_json()
@@ -123,17 +123,31 @@ def fetch_movie_actors(movie_id):
     if movie is None:
         return jsonify({'success': False, 'msg': f'Movie with the given id {movie_id} does not exist!!!'})
     actors = movie.actors
-    return jsonify({'success': True, 'data': [to_dict(actor) for actor in actors]})
+    res_data = to_dict(movie)
+    res_data['actors'] = [to_dict(actor) for actor in actors]
+    return jsonify({'success': True, 'data': res_data})
 
 
-@app.route("/v1/movie_cast/actors/<actor_id>", methods=['GET'])
-def fetch_actor_movies(actor_id):
-    from backend.models import Actor, CrudHelper
-    actor = CrudHelper.get(Actor, (Actor.id == actor_id))
-    if actor is None:
-        return jsonify({'success': False, 'msg': f'Actor with the given id {actor_id} does not exist!!!'})
-    movies = actor.movies
-    return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
+# Todo: Add documentation new API
+@app.route("/v1/movies_cast", methods=['GET'])
+def fetch_movies_cast():
+    from backend.models import Movie, CrudHelper
+    movies = CrudHelper.get_all(Movie)
+    if movies is None or len(movies) == 0:
+        return jsonify({'success': False, 'msg': f'No movies found!!!!'})
+    res_data = []
+    for movie in movies:
+        res_data.append({'movie': to_dict(movie), 'actors': [to_dict(actor) for actor in movie.actors]})
+    return jsonify({'success': True, 'data': res_data})
+
+# @app.route("/v1/movie_cast/actors/<actor_id>", methods=['GET'])
+# def fetch_actor_movies(actor_id):
+#     from backend.models import Actor, CrudHelper
+#     actor = CrudHelper.get(Actor, (Actor.id == actor_id))
+#     if actor is None:
+#         return jsonify({'success': False, 'msg': f'Actor with the given id {actor_id} does not exist!!!'})
+#     movies = actor.movies
+#     return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
 
 
 @app.route("/v1/movie_cast", methods=['DELETE'])

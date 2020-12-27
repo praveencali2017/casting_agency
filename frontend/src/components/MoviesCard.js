@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { MOVIES_API } from '../utils/service';
+import {fetchMovies } from '../utils/service';
 
 function MoviesCard(props) {
   const [movies, setMovies] = useState([]);
   // Fetch available movies
   useEffect(_=>{
-    loadMovies();
+    fetchMovies((resData)=>{
+      setMovies(resData);
+      props.loadMoviesList(resData);
+    });
   }, []);
+
   useEffect(_=>{
     if(props.loadMovies){
-      loadMovies();
+      fetchMovies((resData)=>{
+        setMovies(resData);
+        props.loadMoviesList(resData);
+      });
     }
-  },[props.loadMovies])
-  
-  const loadMovies = function(){
-    fetch(MOVIES_API)
-    .then(response => response.json())
-    .then(resData=>{
-        if(resData && resData.success){
-          setMovies(resData.data);
-        }
-    }); 
-  }
+  },[props.loadMovies]);
+
   const createMovieCards = function(movie){
     return  <div className='col' style={{padding:3, marginLeft:2}}>
               <div className="card" style={{width:300}}>

@@ -1,28 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { ACTORS_API } from '../utils/service';
+import {fetchActors } from '../utils/service';
 
 function ActorsCard(props) {
     const [actors, setActors] = useState([]);
     // Fetch available actors
     useEffect(_=>{
-        loadActors();
+        fetchActors((resData)=>{
+            setActors(resData);
+            props.loadActorsList(resData);
+        });
       }, []);
 
-      useEffect(_=>{
-        if(props.loadActors){
-          loadActors();
-        }
-      },[props.loadActors])
-      
-      const loadActors = function(){
-        fetch(ACTORS_API)
-        .then(response => response.json())
-        .then(resData=>{
-          if(resData && resData.success){
-            setActors(resData.data);
-          }
+    useEffect(_=>{
+    if(props.loadActors){
+        fetchActors((resData)=>{
+            setActors(resData);
+            props.loadActorsList(resData);
         });
-      }
+    }
+    },[props.loadActors]);
 
     const createActorCards = function(actor){
       return  <div className='col' style={{padding:3, marginLeft:2}}>
