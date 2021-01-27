@@ -9,8 +9,6 @@ function MoviesCastCard(props) {
     },[]);
   
   useEffect(_=>{
-    console.log("Updated!!!!");
-    console.log(props.isUpdated);
     if(props.isUpdated){
         fetchMoviesCrew();
     }

@@ -60,6 +60,21 @@ const ajaxRequestPost = function(url, reqData, callback){
     }); 
   };
 
+const ajaxRequest = function(url, method, reqData, callback){
+fetch(url, {
+    method: method,
+    body: reqData?JSON.stringify(reqData): null,
+    headers: new Headers({
+    'Content-Type': 'application/json'
+    })})
+.then(response => response.json())
+.then(resData=>{
+    if(callback){
+        callback(resData);
+    }
+}); 
+};
+
 const ajaxRequestGet = function(url, callback){
     fetch(url)
     .then(response => response.json())
@@ -68,4 +83,4 @@ const ajaxRequestGet = function(url, callback){
     });
   };
 
-export {SERVER_URL, MOVIES_API, ACTORS_API, MOVIE_CAST_API, fetchMovies, fetchActors, addMovie, addActor, ajaxRequestGet, ajaxRequestPost};
+export {SERVER_URL, MOVIES_API, ACTORS_API, MOVIE_CAST_API, fetchMovies, fetchActors, addMovie, addActor, ajaxRequestGet, ajaxRequestPost, ajaxRequest};
