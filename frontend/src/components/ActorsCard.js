@@ -27,11 +27,12 @@ function ActorsCard(props) {
                   <h5 className="card-title" style={{color:'black'}}>{actor.name}</h5>
                   <p style={{color:'black'}}>Age: {actor.age}</p>
                   <p style={{color:'black'}}>Gender: {actor.gender}</p>
-                  <div className="btn-success btn-sm text-center" id={'actor-id-btn-'+actor.id}>Update</div>
+                  <div className="btn-success btn-sm text-center" id={'actorUpdateBtnContainer'+actor.id}
+                    data-toggle="modal" data-target="#updateActorModal" style={{cursor:"pointer"}} onClick={_=>props.chooseUpdate(actor)}>Update</div>
                 </div>
               </div>
       </div>
-    };
+    };  
   
     return (
       <div className='row'>
