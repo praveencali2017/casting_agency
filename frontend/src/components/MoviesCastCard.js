@@ -29,7 +29,7 @@ function MoviesCastCard(props) {
                 <div className="card-body">
                   <h5 className="card-title" style={{color:'black'}}>{movieCast.movie.title +"'s Actors"}</h5>
                   <p>Movie Title: {movieCast.movie.title}</p>
-                  <label for="">Actors:</label>
+                  <label>Actors:</label>
                   {movieCast.actors.map((actor)=>{
                       return <span class="badge badge-pill badge-primary">{actor.name}</span>
                   })}

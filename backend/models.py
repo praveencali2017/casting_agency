@@ -162,8 +162,8 @@ class Actor(db.Model):
 
 class MovieActorLink(db.Model):
     __tablename__ = "movies_actors_link"
-    movie_id = Column(Integer, ForeignKey('movies.id'), primary_key= True)
-    actor_id = Column(Integer, ForeignKey('actors.id'), primary_key = True)
+    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='cascade'), primary_key=True)
+    actor_id = Column(Integer, ForeignKey('actors.id', ondelete='cascade'), primary_key=True)
 
     @classmethod
     def insert(cls, **kwargs):

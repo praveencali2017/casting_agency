@@ -240,7 +240,7 @@ function Dashboard(props) {
                   <div className='btn-primary btn-lg' id='createMovieBtn' data-toggle="modal" data-target="#addMovieModal">Create Movie</div>
                     {createMovieModal()}
                   <div className='container' style={{marginLeft:15, marginTop:10}}>
-                    <MoviesCard loadMovies={isMovieUpdated} loadMoviesList={(resData)=>{
+                    <MoviesCard loadMovies={isMovieUpdated} isMovieDeleted={(_=>{setMovieActorUpdated(true)})} loadMoviesList={(resData)=>{
                       setMoviesList(resData);
                       setIsMovieUpdated(false);
                       }} chooseUpdate={setSelectedMovieUpdate}/>
@@ -252,7 +252,7 @@ function Dashboard(props) {
                   <div className='btn-primary btn-lg' id='createActorBtn' data-toggle="modal" data-target="#addActorModal">Create Actor</div>
                     {createActorModal()}
                   <div className='container' style={{marginLeft:15, marginTop:10}}>
-                    <ActorsCard loadActors={isActorUpdated} loadActorsList={(resData)=>{
+                    <ActorsCard loadActors={isActorUpdated} isActorDeleted={(_=>{setMovieActorUpdated(true)})} loadActorsList={(resData)=>{
                       setActorsList(resData);
                       setIsActorUpdated(false);
                       }} chooseUpdate={setSelectedActorUpdate} />
