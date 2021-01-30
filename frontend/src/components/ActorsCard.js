@@ -32,7 +32,7 @@ function ActorsCard(props) {
             props.isActorDeleted();
             loadActors();
           }
-        })
+        });
       }
 
     const createActorCards = function(actor){

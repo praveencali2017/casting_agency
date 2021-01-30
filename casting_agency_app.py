@@ -150,7 +150,7 @@ def fetch_movies_cast():
 #     return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
 
 
-@app.route("/v1/movie_cast", methods=['DELETE'])
+@app.route("/v1/movies_cast", methods=['DELETE'])
 def remove_actor_from_movie():
     from sqlalchemy import and_
     from backend.models import MovieActorLink, CrudHelper

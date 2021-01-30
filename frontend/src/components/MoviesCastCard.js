@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {MOVIE_CAST_API, ajaxRequestGet } from '../utils/service';
+import {MOVIE_CAST_API, ajaxRequestGet, ajaxRequest } from '../utils/service';
 
 function MoviesCastCard(props) {
   const [moviesCast, setMoviesCast] = useState([]);
@@ -23,6 +23,19 @@ function MoviesCastCard(props) {
     });
   }
 
+
+  const deleteCast = function(movie, actor){
+    const choice = window.confirm(`This action will remove ${actor.name} from the movie ${movie.title} ?`);
+    if(!choice){
+      return;
+    }
+    ajaxRequest(MOVIE_CAST_API+`?actor_id=${actor.id}&movie_id=${movie.id}`, 'DELETE', null, (resData)=>{
+      if(resData.success){
+        fetchMoviesCrew();
+      }
+    });
+  }
+
   const createMovieCastsCards = function(movieCast){
     return  <div className='col' style={{padding:3, marginLeft:2}}>
               <div className="card" style={{width:300}}>
@@ -31,7 +44,9 @@ function MoviesCastCard(props) {
                   <p>Movie Title: {movieCast.movie.title}</p>
                   <label>Actors:</label>
                   {movieCast.actors.map((actor)=>{
-                      return <span class="badge badge-pill badge-primary">{actor.name}</span>
+                      return <button class="btn btn-primary btn-sm" style={{margin:2}}>
+                      {actor.name} <span class="badge badge-light" onClick={_=>deleteCast(movieCast.movie, actor)}>&times;</span>
+                    </button>
                   })}
                 </div>
               </div>
