@@ -7,7 +7,7 @@ from backend.auth.auth import requires_auth
 from backend.models import setup_db
 # Point to the custom static and templates folder that we created!!!!!
 app = Flask(__name__, static_folder='./backend/static', template_folder='./backend/templates')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 app.logger.handlers = logger.handlers
 # setup_db(app)
