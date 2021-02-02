@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 from config import DATABASE_URI
-# from casting_agency_app import app
+from casting_agency_app import app
 from sqlalchemy.orm import relationship
 from backend.utils import logger
 db = SQLAlchemy()
