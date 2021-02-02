@@ -6,12 +6,19 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'jquery/dist/jquery.min.js'
 import 'bootstrap/dist/js/bootstrap.min.js'
 import reportWebVitals from './reportWebVitals';
+import { Auth0Provider } from "@auth0/auth0-react";
 
 ReactDOM.render(
-  <React.StrictMode>
+  <Auth0Provider
+    domain="dev-prav-auth.us.auth0.com"
+    clientId="DavU4i56mMk4qPck3ruSla263xEczzJ5"
+    redirectUri={window.location.origin}
+    audience="casting"
+    scope="get:actors get:movies"
+  >
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </Auth0Provider>,
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

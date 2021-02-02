@@ -1,10 +1,7 @@
 import Dashboard from './components/Dashboard';
 import React, { useEffect, useState } from 'react';
-
 // Main App Components
 function App() {
-  ;
-
   return (
     <div className="App container-fluid">
       <div className="jumbotron">

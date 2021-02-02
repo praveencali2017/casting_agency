@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ActorsCard from './ActorsCard';
 import MoviesCard from './MoviesCard';
 import { dateFormatter } from '../utils/helpers';
-import {addActor, addMovie, ajaxRequestPost, MOVIE_CAST_API, ACTORS_API, ajaxRequest, MOVIES_API} from '../utils/service';
+import {addActor, addMovie, ajaxRequestPost, MOVIE_CAST_API, ACTORS_API, ajaxRequest, MOVIES_API, AUTH_DOMAIN} from '../utils/service';
 import MoviesCastCard from './MoviesCastCard';
+import LoginLogout from './LoginLogout';
+import {useAuth0} from '@auth0/auth0-react';
+
 function Dashboard(props) {
   const [isMovieUpdated, setIsMovieUpdated] = useState(false);
   const [isActorUpdated, setIsActorUpdated] = useState(false);
@@ -12,7 +15,29 @@ function Dashboard(props) {
   const [actorsList, setActorsList] = useState([]);
   const [selectedActorUpdate, setSelectedActorUpdate] = useState({});
   const [selectedMovieUpdate, setSelectedMovieUpdate] = useState({});
-  
+  const [appToken, setAppToken] = useState(null);
+  const {
+    getAccessTokenSilently, loginWithRedirect
+  } = useAuth0();
+
+  useEffect(_=>{
+    (async()=>{
+      let token = null;
+    try {
+      console.log("Getting token!!!!");
+       token = await getAccessTokenSilently({audience:'casting', scope:'get:actors get:movies'});
+    } catch (e) {
+      if (e.error === 'login_required') {
+        loginWithRedirect();
+      }
+      if (e.error === 'consent_required') {
+        loginWithRedirect();
+      }
+    }
+    setAppToken(token);
+    })();
+  },[]);
+
   const addNewMovie = function(){
     let reqData = {
       'title': document.getElementById('movieTitleTxt').value,
@@ -229,18 +254,22 @@ function Dashboard(props) {
     <div className='row'>
       <div className='col'>
           <div className="nav nav-tabs" id="dashboardTab" role="tablist">
-              <a className="nav-item nav-link active" data-toggle="tab" href="#viewContent" role="tab">View/Edit</a>
+              <a className="nav-item nav-link active" data-toggle="tab" href="#loginLogout" role="tab">Login/Logout</a>
+              <a className="nav-item nav-link" data-toggle="tab" href="#viewContent" role="tab">View/Edit</a>
               <a className="nav-item nav-link" data-toggle="tab" href="#manageCastContent" role="tab">Manage Cast</a>
           </div>
           <div className="tab-content" id="tabDashboardContent">
-            <div className="tab-pane fade show active" id="viewContent" role="tabpanel" >
+            <div className="tab-pane fade show active" id="loginLogout" role="tabpanel">
+              <LoginLogout/>
+            </div>
+            <div className="tab-pane fade" id="viewContent" role="tabpanel" >
               <div className="row">
                 <div className='col'>
                   <h3>Movies</h3>
                   <div className='btn-primary btn-lg' id='createMovieBtn' data-toggle="modal" data-target="#addMovieModal">Create Movie</div>
                     {createMovieModal()}
                   <div className='container' style={{marginLeft:15, marginTop:10}}>
-                    <MoviesCard loadMovies={isMovieUpdated} isMovieDeleted={(_=>{setMovieActorUpdated(true)})} loadMoviesList={(resData)=>{
+                    <MoviesCard loadMovies={isMovieUpdated} appToken={appToken} isMovieDeleted={(_=>{setMovieActorUpdated(true)})} loadMoviesList={(resData)=>{
                       setMoviesList(resData);
                       setIsMovieUpdated(false);
                       }} chooseUpdate={setSelectedMovieUpdate}/>
@@ -252,7 +281,7 @@ function Dashboard(props) {
                   <div className='btn-primary btn-lg' id='createActorBtn' data-toggle="modal" data-target="#addActorModal">Create Actor</div>
                     {createActorModal()}
                   <div className='container' style={{marginLeft:15, marginTop:10}}>
-                    <ActorsCard loadActors={isActorUpdated} isActorDeleted={(_=>{setMovieActorUpdated(true)})} loadActorsList={(resData)=>{
+                    <ActorsCard appToken={appToken} loadActors={isActorUpdated} isActorDeleted={(_=>{setMovieActorUpdated(true)})} loadActorsList={(resData)=>{
                       setActorsList(resData);
                       setIsActorUpdated(false);
                       }} chooseUpdate={setSelectedActorUpdate} />
@@ -291,7 +320,7 @@ function Dashboard(props) {
                   </div>
                   <div className="row">
                     <div className="col">
-                      <MoviesCastCard isUpdated={isMovieActorUpdated} disableIsUpdated={()=> setMovieActorUpdated(false)}/>
+                      <MoviesCastCard appToken={appToken} isUpdated={isMovieActorUpdated} disableIsUpdated={()=> setMovieActorUpdated(false)}/>
                     </div>
                     
                   </div>    

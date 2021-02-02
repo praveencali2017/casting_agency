@@ -3,11 +3,14 @@ from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
 from backend.utils import logger, to_dict
 from flask_cors import CORS
+from backend.auth.auth import requires_auth
+from backend.models import setup_db
 # Point to the custom static and templates folder that we created!!!!!
 app = Flask(__name__, static_folder='./backend/static', template_folder='./backend/templates')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 app.logger.handlers = logger.handlers
-
+# setup_db(app)
 
 @app.route("/")
 def dashboard():
@@ -29,7 +32,8 @@ def create_actor():
 
 
 @app.route("/v1/actors", methods=['GET'])
-def get_actors():
+@requires_auth('get:actors')
+def get_actors(payload):
     from backend.models import Actor, CrudHelper
     actors = CrudHelper.get_all(Actor)
     return jsonify({'success': True, 'data': [to_dict(actor) for actor in actors]})
@@ -65,7 +69,8 @@ def update_actor(actor_id):
 
 # Movies API
 @app.route("/v1/movies", methods=['GET'])
-def get_movies():
+@requires_auth('get:movies')
+def get_movies(payload):
     from backend.models import Movie, CrudHelper
     movies = CrudHelper.get_all(Movie)
     return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
@@ -196,6 +201,7 @@ def handle_client_error(e):
         'success': False,
         'msg': e.description
     }), e.code
+
 
 # if __name__ == '__main__':
 #     app.run(debug=True)

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {ajaxRequest, fetchMovies, MOVIES_API } from '../utils/service';
-
+import {ajaxRequest, fetchMovies, MOVIES_API, AUTH_DOMAIN } from '../utils/service';
+import {useAuth0} from "@auth0/auth0-react"
 
 function MoviesCard(props) {
   const [movies, setMovies] = useState([]);
@@ -10,17 +10,24 @@ function MoviesCard(props) {
   }, []);
 
   useEffect(_=>{
+    loadMovies();
+  }, [props.appToken]);
+
+  useEffect(_=>{
     if(props.loadMovies){
       loadMovies();
     }
   },[props.loadMovies]);
 
   const loadMovies = function(){
-    fetchMovies((resData)=>{
-      setMovies(resData);
-      props.loadMoviesList(resData);
-    });
+      if(props.appToken){
+        fetchMovies((resData)=>{
+          setMovies(resData);
+          props.loadMoviesList(resData);
+        }, props.appToken);
+    }
   }
+
   const deleteMovie = function(movie){
 
     const choice = window.confirm(`Are you sure you want to delete the movie ${movie.title} ?`);

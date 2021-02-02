@@ -7,6 +7,10 @@ function ActorsCard(props) {
     useEffect(_=>{
         loadActors()
       }, []);
+    
+      useEffect(_=>{
+        loadActors();
+      }, [props.appToken]);
 
     useEffect(_=>{
     if(props.loadActors){
@@ -15,10 +19,12 @@ function ActorsCard(props) {
     },[props.loadActors]);
 
     const loadActors = function(){
-        fetchActors((resData)=>{
-            setActors(resData);
-            props.loadActorsList(resData);
-        });
+        if(props.appToken){
+            fetchActors((resData)=>{
+                setActors(resData);
+                props.loadActorsList(resData);
+            }, props.appToken);
+        }
     }
 
     const deleteActor = function(actor){
