@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {useAuth0} from '@auth0/auth0-react'
 // Main App Components
-function LoginLogout() {
+function LoginLogout(props) {
     const {
         isAuthenticated,
         loginWithRedirect,
@@ -24,7 +24,10 @@ function LoginLogout() {
           </div>
         </div>:
         <div className="col-2">
-        <div className="btn-danger btn-sm" onClick={() => logout()}>
+        <div className="btn-danger btn-sm" onClick={() => {
+          props.resetAppToken();
+          logout()
+          }}>
           Logout
         </div>
       </div>}

@@ -3,13 +3,16 @@ from flask import jsonify
 from werkzeug.exceptions import InternalServerError, BadRequest
 from backend.utils import logger, to_dict
 from flask_cors import CORS
-from backend.auth.auth import requires_auth
-# from backend.models import setup_db
+from backend.auth.auth import requires_auth, AuthError
+
 # Point to the custom static and templates folder that we created!!!!!
 app = Flask(__name__, static_folder='./backend/static', template_folder='./backend/templates')
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 CORS(app)
 app.logger.handlers = logger.handlers
+# Uncomment in debug mode
+# from backend.models import setup_db
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # setup_db(app)
 
 @app.route("/")
@@ -24,6 +27,7 @@ def app_index():
 
 # Actor API
 @app.route("/v1/actors", methods=['POST'])
+@requires_auth('add:actors')
 def create_actor():
     from backend.models import Actor
     req_data = request.get_json()
@@ -40,6 +44,7 @@ def get_actors(payload):
 
 
 @app.route("/v1/actors/<actor_id>", methods=['DELETE'])
+@requires_auth('delete:actors')
 def delete_actor(actor_id):
     from backend.models import Actor
     filter_by = (Actor.id == actor_id)
@@ -48,15 +53,16 @@ def delete_actor(actor_id):
         return jsonify({'success': False, 'msg': 'Not able to delete actor!!!'}), BadRequest
     return jsonify({'success': True})
 
-
-@app.route("/v1/actors/<actor_id>", methods=['GET'])
-def get_actor(actor_id):
-    from backend.models import Actor, CrudHelper
-    actor = CrudHelper.get(Actor, (Actor.id == actor_id))
-    return build_orm_json(actor, fail_err_msg='Not able to fetch actor!!!')
+# Extra API (In case in future)
+# @app.route("/v1/actors/<actor_id>", methods=['GET'])
+# def get_actor(actor_id):
+#     from backend.models import Actor, CrudHelper
+#     actor = CrudHelper.get(Actor, (Actor.id == actor_id))
+#     return build_orm_json(actor, fail_err_msg='Not able to fetch actor!!!')
 
 
 @app.route("/v1/actors/<actor_id>", methods=['PATCH'])
+@requires_auth('update:actors')
 def update_actor(actor_id):
     from backend.models import Actor
     req_data = request.get_json()
@@ -77,21 +83,23 @@ def get_movies(payload):
 
 
 @app.route("/v1/movies", methods=['POST'])
+@requires_auth('add:movies')
 def create_movie():
     from backend.models import Movie
     req_data = request.get_json()
     movie = Movie.insert(**req_data)
     return build_orm_json(movie, fail_err_msg='Not able to insert new actor')
 
-
-@app.route("/v1/movies/<movie_id>", methods=['GET'])
-def get_movie(movie_id):
-    from backend.models import Movie, CrudHelper
-    movie = CrudHelper.get(Movie, (Movie.id == movie_id))
-    return build_orm_json(movie, fail_err_msg='Not able to fetch movie!!!')
+# Extra API
+# @app.route("/v1/movies/<movie_id>", methods=['GET'])
+# def get_movie(movie_id):
+#     from backend.models import Movie, CrudHelper
+#     movie = CrudHelper.get(Movie, (Movie.id == movie_id))
+#     return build_orm_json(movie, fail_err_msg='Not able to fetch movie!!!')
 
 
 @app.route("/v1/movies/<movie_id>", methods=['DELETE'])
+@requires_auth('delete:movies')
 def delete_movie(movie_id):
     from backend.models import Movie
     filter_by = (Movie.id == movie_id)
@@ -100,6 +108,7 @@ def delete_movie(movie_id):
 
 
 @app.route("/v1/movies/<movie_id>", methods=['PATCH'])
+@requires_auth('update:movies')
 def update_movie(movie_id):
     from backend.models import Movie
     req_data = request.get_json()
@@ -112,6 +121,7 @@ def update_movie(movie_id):
 
 # Association APIS [Movie and Actor]
 @app.route("/v1/movies_cast", methods=['POST'])
+@requires_auth('manage:cast')
 def create_movie_cast():
     from backend.models import MovieActorLink
     req_data = request.get_json()
@@ -121,20 +131,21 @@ def create_movie_cast():
     return jsonify({'success': True})
 
 
-@app.route("/v1/movie_cast/movies/<movie_id>", methods=['GET'])
-def fetch_movie_actors(movie_id):
-    from backend.models import Movie, CrudHelper
-    movie = CrudHelper.get(Movie, (Movie.id == movie_id))
-    if movie is None:
-        return jsonify({'success': False, 'msg': f'Movie with the given id {movie_id} does not exist!!!'})
-    actors = movie.actors
-    res_data = to_dict(movie)
-    res_data['actors'] = [to_dict(actor) for actor in actors]
-    return jsonify({'success': True, 'data': res_data})
+# @app.route("/v1/movie_cast/movies/<movie_id>", methods=['GET'])
+# def fetch_movie_actors(movie_id):
+#     from backend.models import Movie, CrudHelper
+#     movie = CrudHelper.get(Movie, (Movie.id == movie_id))
+#     if movie is None:
+#         return jsonify({'success': False, 'msg': f'Movie with the given id {movie_id} does not exist!!!'})
+#     actors = movie.actors
+#     res_data = to_dict(movie)
+#     res_data['actors'] = [to_dict(actor) for actor in actors]
+#     return jsonify({'success': True, 'data': res_data})
 
 
 # Todo: Add documentation new API
 @app.route("/v1/movies_cast", methods=['GET'])
+@requires_auth('manage:cast')
 def fetch_movies_cast():
     from backend.models import Movie, CrudHelper
     movies = CrudHelper.get_all(Movie)
@@ -156,6 +167,7 @@ def fetch_movies_cast():
 
 
 @app.route("/v1/movies_cast", methods=['DELETE'])
+@requires_auth('manage:cast')
 def remove_actor_from_movie():
     from sqlalchemy import and_
     from backend.models import MovieActorLink, CrudHelper
@@ -189,7 +201,7 @@ def handle_internal_error(e):
     logger.error(msg)
     return jsonify({
         'success': False,
-        'msg': e.description
+        'description': e.description
     }), e.code
 
 
@@ -199,8 +211,19 @@ def handle_client_error(e):
     logger.error(msg)
     return jsonify({
         'success': False,
-        'msg': e.description
+        'description': e.description
     }), e.code
+
+
+@app.errorhandler(AuthError)
+def handle_auth_error(e):
+    msg = f'[handle_auth_error] Error processing the request. Reason: {str(e)}'
+    logger.error(msg)
+    return jsonify({
+        'success': False,
+        'auth_error': True,
+        'description': e.error['description']
+    }), e.status_code
 
 
 # if __name__ == '__main__':

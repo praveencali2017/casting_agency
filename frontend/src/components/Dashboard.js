@@ -16,6 +16,7 @@ function Dashboard(props) {
   const [selectedActorUpdate, setSelectedActorUpdate] = useState({});
   const [selectedMovieUpdate, setSelectedMovieUpdate] = useState({});
   const [appToken, setAppToken] = useState(null);
+  const [showCastContent, setCastShowContent] = useState(false);
   const {
     getAccessTokenSilently, loginWithRedirect
   } = useAuth0();
@@ -48,7 +49,7 @@ function Dashboard(props) {
         setIsMovieUpdated(true);
       }
       document.getElementById("dismissMovieModalBtn").click();
-    });
+    }, appToken);
   };
 
   const addNewActor = function(){
@@ -62,7 +63,7 @@ function Dashboard(props) {
         setIsActorUpdated(true);
       }
       document.getElementById("dismissActorModalBtn").click();
-    });
+    }, appToken);
   };
 
   const addActorToMovie = function(){
@@ -247,7 +248,7 @@ function Dashboard(props) {
         if(resData.success){
           setIsMovieUpdated(true);
         }
-      });
+      },appToken);
     }
 
   return (
@@ -260,7 +261,7 @@ function Dashboard(props) {
           </div>
           <div className="tab-content" id="tabDashboardContent">
             <div className="tab-pane fade show active" id="loginLogout" role="tabpanel">
-              <LoginLogout/>
+              <LoginLogout resetAppToken={()=>setAppToken(null)}/>
             </div>
             <div className="tab-pane fade" id="viewContent" role="tabpanel" >
               <div className="row">
@@ -292,6 +293,7 @@ function Dashboard(props) {
             </div>
             <div className="tab-pane fade" id="manageCastContent" role="tabpanel">
               <div className="row">
+                {showCastContent?
                 <div className="col">
                   <div className="row" style={{marginTop:20}}>
                     <div className="col">
@@ -320,12 +322,19 @@ function Dashboard(props) {
                   </div>
                   <div className="row">
                     <div className="col">
-                      <MoviesCastCard appToken={appToken} isUpdated={isMovieActorUpdated} disableIsUpdated={()=> setMovieActorUpdated(false)}/>
+                      <MoviesCastCard updateShowContent={setCastShowContent} appToken={appToken} isUpdated={isMovieActorUpdated} disableIsUpdated={()=> setMovieActorUpdated(false)}/>
                     </div>
                     
                   </div>    
-                </div>
-                
+                </div>: 
+                <div className='col d-flex justify-content-center' style={{marginTop:100}}>
+                  <div class="card text-white bg-secondary">
+                      <div class="card-body">
+                          <h5 class="card-title">Not Authorized</h5>
+                          <p class="card-text">You don't have suitable permission to view the content!!!</p>
+                      </div>
+                  </div>
+                </div>}
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import {MOVIE_CAST_API, ajaxRequestGet, ajaxRequest } from '../utils/service';
 
 function MoviesCastCard(props) {
@@ -7,6 +8,9 @@ function MoviesCastCard(props) {
   useEffect(_=>{
         fetchMoviesCrew();
     },[]);
+    useEffect(_=>{
+        fetchMoviesCrew();
+    },[props.appToken]);
   
   useEffect(_=>{
     if(props.isUpdated){
@@ -15,12 +19,14 @@ function MoviesCastCard(props) {
   }, [props.isUpdated]);
 
   const fetchMoviesCrew = function(){
-    ajaxRequestGet(MOVIE_CAST_API, (resData)=>{
+    console.log("Fetching crew!!!!");
+    ajaxRequest(MOVIE_CAST_API,'GET', null, (resData)=>{
         if(resData.success){
+            props.updateShowContent(true);
             setMoviesCast(resData.data);
             props.disableIsUpdated();
         }
-    });
+    }, props.appToken);
   }
 
 
@@ -33,7 +39,7 @@ function MoviesCastCard(props) {
       if(resData.success){
         fetchMoviesCrew();
       }
-    });
+    }, props.appToken);
   }
 
   const createMovieCastsCards = function(movieCast){
@@ -55,7 +61,7 @@ function MoviesCastCard(props) {
 
   return (
     <div className='row'>
-       {moviesCast.map(createMovieCastsCards)}
+        {moviesCast.map(createMovieCastsCards)}
     </div>
 
   );

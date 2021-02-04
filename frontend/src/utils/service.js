@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 const SERVER_URL = `${window.location.origin}/`;
 const MOVIES_API = SERVER_URL+'v1/movies';
 const ACTORS_API = SERVER_URL+'v1/actors';
@@ -18,30 +20,12 @@ const fetchActors = function(callback, token){
         }
     }, token);
 };
-const addMovie = function(reqData, callback){
-    fetch(MOVIES_API, {
-      method:'POST',
-      body: JSON.stringify(reqData),
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      })})
-    .then(response => response.json())
-    .then(resData=>{
-        callback(resData);
-    }) 
+const addMovie = function(reqData, callback, token){
+    ajaxRequest(MOVIES_API, 'POST', reqData, callback, token);
   };
 
-const addActor = function(reqData, callback){
-    fetch(ACTORS_API, {
-        method:'POST',
-        body: JSON.stringify(reqData),
-        headers: new Headers({
-        'Content-Type': 'application/json'
-        })})
-    .then(response => response.json())
-    .then(resData=>{
-        callback(resData);
-    }) 
+const addActor = function(reqData, callback, token){
+    ajaxRequest(ACTORS_API, 'POST', reqData, callback, token);
   };
 
 const ajaxRequestPost = function(url, reqData, callback){
@@ -61,6 +45,7 @@ const ajaxRequestPost = function(url, reqData, callback){
   };
 
 const ajaxRequest = function(url, method, reqData, callback, token){
+    if(token != null){
     fetch(url, {
         method: method,
         body: reqData?JSON.stringify(reqData): null,
@@ -68,15 +53,22 @@ const ajaxRequest = function(url, method, reqData, callback, token){
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
         })})
-    .then(response => response.json())
+    .then(response =>response.json())
     .then(resData=>{
+        if(!resData.success && resData.auth_error){
+            toast.error(resData.description, {position:'bottom-center'});
+        }
         if(callback){
             callback(resData);
         }
     })
     .catch(exc=>{
-        alert(exc);
+        console.log(exc);
     }); 
+}
+else{
+    console.log("No Authorized token is set!!!!");
+}
 };
 
 const ajaxRequestGet = function(url, callback){

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 from config import DATABASE_URI
+# Comment in debug mode!!!
 from casting_agency_app import app
 from sqlalchemy.orm import relationship
 from backend.utils import logger
@@ -32,7 +33,7 @@ def db_drop_and_create_all():
     db.create_all()
 
 
-# Wire db to the app
+# Wire db to the app. Comment in debug mode
 setup_db(app)
 
 """

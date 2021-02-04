@@ -40,7 +40,7 @@ function MoviesCard(props) {
         props.isMovieDeleted();
         loadMovies();
       }
-    })
+    },props.appToken)
   }
 
   const createMovieCards = function(movie){

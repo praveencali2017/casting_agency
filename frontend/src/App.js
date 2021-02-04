@@ -1,5 +1,7 @@
 import Dashboard from './components/Dashboard';
 import React, { useEffect, useState } from 'react';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer} from 'react-toastify';
 // Main App Components
 function App() {
   return (
@@ -9,6 +11,7 @@ function App() {
         <p>Single place to view movies, actors and assign actors to the movies!!!!!</p>
       </div>
       <Dashboard/>
+      <ToastContainer/>
     </div>
   );
 }
