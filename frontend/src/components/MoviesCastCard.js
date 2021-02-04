@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import {MOVIE_CAST_API, ajaxRequestGet, ajaxRequest } from '../utils/service';
+import {MOVIE_CAST_API, ajaxRequest } from '../utils/service';
 
 function MoviesCastCard(props) {
   const [moviesCast, setMoviesCast] = useState([]);
+  const [showCastContent, setCastShowContent] = useState(false);
   // Fetch available movies
   useEffect(_=>{
         fetchMoviesCrew();
     },[]);
+
     useEffect(_=>{
         fetchMoviesCrew();
     },[props.appToken]);
@@ -19,12 +20,13 @@ function MoviesCastCard(props) {
   }, [props.isUpdated]);
 
   const fetchMoviesCrew = function(){
-    console.log("Fetching crew!!!!");
     ajaxRequest(MOVIE_CAST_API,'GET', null, (resData)=>{
         if(resData.success){
             props.updateShowContent(true);
             setMoviesCast(resData.data);
             props.disableIsUpdated();
+        }else{
+            props.updateShowContent(false);
         }
     }, props.appToken);
   }

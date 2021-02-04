@@ -71,12 +71,4 @@ else{
 }
 };
 
-const ajaxRequestGet = function(url, callback){
-    fetch(url)
-    .then(response => response.json())
-    .then(resData=>{
-        callback(resData);
-    });
-  };
-
-export {SERVER_URL, MOVIES_API, ACTORS_API, MOVIE_CAST_API, fetchMovies, fetchActors, addMovie, addActor, ajaxRequestGet, ajaxRequestPost, ajaxRequest, AUTH_DOMAIN};
+export {SERVER_URL, MOVIES_API, ACTORS_API, MOVIE_CAST_API, fetchMovies, fetchActors, addMovie, addActor, ajaxRequestPost, ajaxRequest, AUTH_DOMAIN};

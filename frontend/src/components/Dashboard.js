@@ -16,7 +16,7 @@ function Dashboard(props) {
   const [selectedActorUpdate, setSelectedActorUpdate] = useState({});
   const [selectedMovieUpdate, setSelectedMovieUpdate] = useState({});
   const [appToken, setAppToken] = useState(null);
-  const [showCastContent, setCastShowContent] = useState(false);
+  const [showCastContent, setCastShowContent] = useState(true);
   const {
     getAccessTokenSilently, loginWithRedirect
   } = useAuth0();
@@ -25,7 +25,6 @@ function Dashboard(props) {
     (async()=>{
       let token = null;
     try {
-      console.log("Getting token!!!!");
        token = await getAccessTokenSilently({audience:'casting', scope:'get:actors get:movies'});
     } catch (e) {
       if (e.error === 'login_required') {
@@ -67,14 +66,14 @@ function Dashboard(props) {
   };
 
   const addActorToMovie = function(){
-    ajaxRequestPost(MOVIE_CAST_API, {
+    ajaxRequest(MOVIE_CAST_API, 'POST', {
       'movie_id': document.getElementById('selectedMovie').value,
       'actor_id': document.getElementById('selectedActor').value
     }, (resData)=>{
       if(resData.success){
         setMovieActorUpdated(true);
       }
-    });
+    }, appToken);
   }
 
 

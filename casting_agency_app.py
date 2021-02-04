@@ -28,7 +28,7 @@ def app_index():
 # Actor API
 @app.route("/v1/actors", methods=['POST'])
 @requires_auth('add:actors')
-def create_actor():
+def create_actor(_):
     from backend.models import Actor
     req_data = request.get_json()
     actor = Actor.insert(**req_data)
@@ -37,7 +37,7 @@ def create_actor():
 
 @app.route("/v1/actors", methods=['GET'])
 @requires_auth('get:actors')
-def get_actors(payload):
+def get_actors(_):
     from backend.models import Actor, CrudHelper
     actors = CrudHelper.get_all(Actor)
     return jsonify({'success': True, 'data': [to_dict(actor) for actor in actors]})
@@ -45,7 +45,7 @@ def get_actors(payload):
 
 @app.route("/v1/actors/<actor_id>", methods=['DELETE'])
 @requires_auth('delete:actors')
-def delete_actor(actor_id):
+def delete_actor(_,actor_id):
     from backend.models import Actor
     filter_by = (Actor.id == actor_id)
     actor = Actor.delete(filter_by)
@@ -63,7 +63,7 @@ def delete_actor(actor_id):
 
 @app.route("/v1/actors/<actor_id>", methods=['PATCH'])
 @requires_auth('update:actors')
-def update_actor(actor_id):
+def update_actor(_,actor_id):
     from backend.models import Actor
     req_data = request.get_json()
     # We should not inject id, since we are directly passing request data to model's attributes
@@ -76,7 +76,7 @@ def update_actor(actor_id):
 # Movies API
 @app.route("/v1/movies", methods=['GET'])
 @requires_auth('get:movies')
-def get_movies(payload):
+def get_movies(_):
     from backend.models import Movie, CrudHelper
     movies = CrudHelper.get_all(Movie)
     return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
@@ -84,7 +84,7 @@ def get_movies(payload):
 
 @app.route("/v1/movies", methods=['POST'])
 @requires_auth('add:movies')
-def create_movie():
+def create_movie(_):
     from backend.models import Movie
     req_data = request.get_json()
     movie = Movie.insert(**req_data)
@@ -100,7 +100,7 @@ def create_movie():
 
 @app.route("/v1/movies/<movie_id>", methods=['DELETE'])
 @requires_auth('delete:movies')
-def delete_movie(movie_id):
+def delete_movie(_,movie_id):
     from backend.models import Movie
     filter_by = (Movie.id == movie_id)
     movie = Movie.delete(filter_by)
@@ -109,7 +109,7 @@ def delete_movie(movie_id):
 
 @app.route("/v1/movies/<movie_id>", methods=['PATCH'])
 @requires_auth('update:movies')
-def update_movie(movie_id):
+def update_movie(_,movie_id):
     from backend.models import Movie
     req_data = request.get_json()
     # We should not inject id, since we are directly passing request data to model's attributes
@@ -122,7 +122,7 @@ def update_movie(movie_id):
 # Association APIS [Movie and Actor]
 @app.route("/v1/movies_cast", methods=['POST'])
 @requires_auth('manage:cast')
-def create_movie_cast():
+def create_movie_cast(_):
     from backend.models import MovieActorLink
     req_data = request.get_json()
     movie_cast = MovieActorLink.insert(**req_data)
@@ -146,7 +146,7 @@ def create_movie_cast():
 # Todo: Add documentation new API
 @app.route("/v1/movies_cast", methods=['GET'])
 @requires_auth('manage:cast')
-def fetch_movies_cast():
+def fetch_movies_cast(_):
     from backend.models import Movie, CrudHelper
     movies = CrudHelper.get_all(Movie)
     if movies is None or len(movies) == 0:
@@ -168,7 +168,7 @@ def fetch_movies_cast():
 
 @app.route("/v1/movies_cast", methods=['DELETE'])
 @requires_auth('manage:cast')
-def remove_actor_from_movie():
+def remove_actor_from_movie(_):
     from sqlalchemy import and_
     from backend.models import MovieActorLink, CrudHelper
     actor_id = request.args.get('actor_id', None)
