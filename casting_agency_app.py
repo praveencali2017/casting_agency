@@ -51,7 +51,7 @@ def delete_actor(_,actor_id):
     filter_by = (Actor.id == actor_id)
     actor = Actor.delete(filter_by)
     if actor is None:
-        return jsonify({'success': False, 'msg': 'Not able to delete actor!!!'}), BadRequest
+        return jsonify({'success': False, 'msg': 'Not able to delete actor!!!'}), BadRequest.code
     return jsonify({'success': True})
 
 # Extra API (In case in future)
@@ -128,7 +128,7 @@ def create_movie_cast(_):
     req_data = request.get_json()
     movie_cast = MovieActorLink.insert(**req_data)
     if movie_cast is None:
-        return jsonify({'success': False, 'msg': 'Cannot add actor to the movie!!!'})
+        return jsonify({'success': False, 'msg': 'Cannot add actor to the movie!!!'}), BadRequest.code
     return jsonify({'success': True})
 
 
@@ -175,11 +175,11 @@ def remove_actor_from_movie(_):
     actor_id = request.args.get('actor_id', None)
     movie_id = request.args.get('movie_id', None)
     if movie_id is None or actor_id is None:
-        return jsonify({'success': False, 'msg': 'Actor or Movie is unknown!!! Cannot remove actor from the movie'})
+        return jsonify({'success': False, 'msg': 'Actor or Movie is unknown!!! Cannot remove actor from the movie'}), BadRequest.code
     result = CrudHelper.delete_all(and_(MovieActorLink.actor_id == actor_id,
                                         MovieActorLink.movie_id == movie_id), MovieActorLink)
     if not result:
-        return jsonify({'success': False, 'msg': f'Cannot remove the actor with id {actor_id}'})
+        return jsonify({'success': False, 'msg': f'Cannot remove the actor with id {actor_id}'}), BadRequest.code
     return jsonify({'success': True})
 
 
