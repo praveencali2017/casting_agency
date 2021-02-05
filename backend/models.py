@@ -13,8 +13,8 @@ setup_db(app)
 '''
 
 
-def setup_db(app):
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+def setup_db(app, db_uri):
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
@@ -34,7 +34,7 @@ def db_drop_and_create_all():
 
 
 # Wire db to the app. Comment in debug mode
-setup_db(app)
+setup_db(app, DATABASE_URI)
 
 """
 Models definitions

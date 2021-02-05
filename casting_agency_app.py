@@ -15,6 +15,7 @@ app.logger.handlers = logger.handlers
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # setup_db(app)
 
+
 @app.route("/")
 def dashboard():
     return render_template('index.html')
@@ -190,7 +191,7 @@ def build_orm_json(orm_model, fail_err_msg=None):
     :return:
     """
     if orm_model is None:
-        return jsonify({'success': False, 'msg': fail_err_msg}), BadRequest
+        return jsonify({'success': False, 'msg': fail_err_msg}), BadRequest.code
     return jsonify({'success': True, 'data': to_dict(orm_model)})
 
 
