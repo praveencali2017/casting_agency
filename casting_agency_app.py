@@ -91,13 +91,6 @@ def create_movie(_):
     movie = Movie.insert(**req_data)
     return build_orm_json(movie, fail_err_msg='Not able to insert new actor')
 
-# Extra API
-# @app.route("/v1/movies/<movie_id>", methods=['GET'])
-# def get_movie(movie_id):
-#     from backend.models import Movie, CrudHelper
-#     movie = CrudHelper.get(Movie, (Movie.id == movie_id))
-#     return build_orm_json(movie, fail_err_msg='Not able to fetch movie!!!')
-
 
 @app.route("/v1/movies/<movie_id>", methods=['DELETE'])
 @requires_auth('delete:movies')
@@ -131,20 +124,6 @@ def create_movie_cast(_):
         return jsonify({'success': False, 'msg': 'Cannot add actor to the movie!!!'}), BadRequest.code
     return jsonify({'success': True})
 
-
-# @app.route("/v1/movie_cast/movies/<movie_id>", methods=['GET'])
-# def fetch_movie_actors(movie_id):
-#     from backend.models import Movie, CrudHelper
-#     movie = CrudHelper.get(Movie, (Movie.id == movie_id))
-#     if movie is None:
-#         return jsonify({'success': False, 'msg': f'Movie with the given id {movie_id} does not exist!!!'})
-#     actors = movie.actors
-#     res_data = to_dict(movie)
-#     res_data['actors'] = [to_dict(actor) for actor in actors]
-#     return jsonify({'success': True, 'data': res_data})
-
-
-# Todo: Add documentation new API
 @app.route("/v1/movies_cast", methods=['GET'])
 @requires_auth('manage:cast')
 def fetch_movies_cast(_):
@@ -156,16 +135,6 @@ def fetch_movies_cast(_):
     for movie in movies:
         res_data.append({'movie': to_dict(movie), 'actors': [to_dict(actor) for actor in movie.actors]})
     return jsonify({'success': True, 'data': res_data})
-
-# @app.route("/v1/movie_cast/actors/<actor_id>", methods=['GET'])
-# def fetch_actor_movies(actor_id):
-#     from backend.models import Actor, CrudHelper
-#     actor = CrudHelper.get(Actor, (Actor.id == actor_id))
-#     if actor is None:
-#         return jsonify({'success': False, 'msg': f'Actor with the given id {actor_id} does not exist!!!'})
-#     movies = actor.movies
-#     return jsonify({'success': True, 'data': [to_dict(movie) for movie in movies]})
-
 
 @app.route("/v1/movies_cast", methods=['DELETE'])
 @requires_auth('manage:cast')

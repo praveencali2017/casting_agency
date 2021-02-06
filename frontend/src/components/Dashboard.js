@@ -25,7 +25,7 @@ function Dashboard(props) {
     (async()=>{
       let token = null;
     try {
-       token = await getAccessTokenSilently({audience:'casting', scope:'get:actors get:movies'});
+       token = await getAccessTokenSilently({audience:'casting'});
     } catch (e) {
       if (e.error === 'login_required') {
         loginWithRedirect();

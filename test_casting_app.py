@@ -2,7 +2,7 @@ import unittest
 from casting_agency_app import app
 from datetime import datetime
 from backend.models import db
-from config import DB_NAME, AUTH0_DOMAIN, AUTH0_API_AUDIENCE, DATABASE_URI
+from config import AUTH0_DOMAIN, AUTH0_API_AUDIENCE, DATABASE_URI, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
 
 
 def get_user_token(user_type='ep'):
@@ -17,8 +17,8 @@ def get_user_token(user_type='ep'):
     headers = {'content-type': 'application/json'}
     user_email = list(users[user_type].keys())[0]
     password = users[user_type][user_email]
-    parameter = { "client_id": "DavU4i56mMk4qPck3ruSla263xEczzJ5",
-                  "client_secret": "oFhSZCsuq7KD-aTcwN1YFUaOQU8aCxTAzNYoi7YlQ2MWK3mfPQ-xAYoYTq7A1gE6",
+    parameter = { "client_id": AUTH0_CLIENT_ID,
+                  "client_secret": AUTH0_CLIENT_SECRET,
                   "audience": AUTH0_API_AUDIENCE,
                   "grant_type": "password",
                   "username": user_email,

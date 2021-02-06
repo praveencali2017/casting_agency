@@ -7,14 +7,13 @@ import 'jquery/dist/jquery.min.js'
 import 'bootstrap/dist/js/bootstrap.min.js'
 import reportWebVitals from './reportWebVitals';
 import { Auth0Provider } from "@auth0/auth0-react";
-
+const {REACT_APP_AUTH0_API_AUDIENCE, REACT_APP_AUTH0_API_DOMAIN, REACT_APP_AUTH0_CLIENT_ID} = process.env;
 ReactDOM.render(
   <Auth0Provider
-    domain="dev-prav-auth.us.auth0.com"
-    clientId="DavU4i56mMk4qPck3ruSla263xEczzJ5"
+    domain= {REACT_APP_AUTH0_API_DOMAIN}
+    clientId={REACT_APP_AUTH0_CLIENT_ID}
     redirectUri={window.location.origin}
-    audience="casting"
-    scope="get:actors get:movies"
+    audience={REACT_APP_AUTH0_API_AUDIENCE}
   >
     <App />
   </Auth0Provider>,

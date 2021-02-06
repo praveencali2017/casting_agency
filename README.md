@@ -231,7 +231,7 @@ id=1
 }
 ```
 
-### 9. **Add an actor to movie** `POST /v1/movie_cast`
+### 9. **Add an actor to movie** `POST /v1/movies_cast`
 * **Request:**
 ```
 
@@ -250,7 +250,8 @@ id=1
 }
 ```
 
-### 10. **Fetch Actor's Movies**: `GET /v1/movie_cast/actors/{id}`
+
+### 10. **Fetch Movie's Actors**: `GET /v1/movies_cast`
 * **Request:**
 ```
 id = 2
@@ -263,43 +264,40 @@ id = 2
 {
     "data": [
         {
-            "id": 2,
-            "release_date": "Wed, 20 Jan 2021 00:00:00 GMT",
-            "title": "Avengers Endgame"
+            movie:{
+                "id": 2,
+                "release_date": "Wed, 20 Jan 2021 00:00:00 GMT",
+                "title": "Avengers Endgame"
+            },
+            actors:[
+            {
+               "age": 30,
+               "gender": "male",
+               "id": 2,
+               "name": "Praveen"
+            },
+            {
+               "age": 29,
+               "gender": "male",
+               "id": 4,
+               "name": "Praveen KN"
+            }
+            ]
         }
     ],
     "success": true
 }
 ```
 
-### 11. **Fetch Movie's Actors**: `GET /v1/movie_cast/movies/{id}`
-* **Request:**
-```
-id = 2
-```
-
-* **Response:**
-
-**STATUS: 200**
-```
-{
-    "data": [
-        {
-            "age": 30,
-            "gender": "male",
-            "id": 2,
-            "name": "Praveen"
-        }
-    ],
-    "success": true
-}
-```
-
-### 12. **Remove Actor From The Movie**: `DELETE /v1/movie_cast`
+### 12. **Remove Actor From The Movie**: `DELETE /v1/movies_cast`
 * **Request:**
 ```
 ?actor_id=1&movie_id=2
 ```
+## How to test:
+1. Make sure to change `DATABASE_URI` to a different one suitable for testing, so that it won't
+affect the real database while performing any CRUD operations.
+2. Run `test_casting_app.py` to evaluate the test cases.
 
 * **Response:**
 
