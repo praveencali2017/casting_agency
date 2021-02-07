@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import ActorsCard from './ActorsCard';
 import MoviesCard from './MoviesCard';
 import { dateFormatter } from '../utils/helpers';
-import {addActor, addMovie, ajaxRequestPost, MOVIE_CAST_API, ACTORS_API, ajaxRequest, MOVIES_API, AUTH_DOMAIN, AUTH_CASTING_APP_SCOPES} from '../utils/service';
+import {addActor, addMovie, MOVIE_CAST_API, ACTORS_API, ajaxRequest, MOVIES_API, AUTH_DOMAIN, AUTH_CASTING_APP_SCOPES} from '../utils/service';
 import MoviesCastCard from './MoviesCastCard';
 import LoginLogout from './LoginLogout';
 import {useAuth0} from '@auth0/auth0-react';
-
+const {REACT_APP_AUTH0_API_AUDIENCE} = process.env;
 function Dashboard(props) {
   const [isMovieUpdated, setIsMovieUpdated] = useState(false);
   const [isActorUpdated, setIsActorUpdated] = useState(false);
@@ -25,7 +25,7 @@ function Dashboard(props) {
     (async()=>{
       let token = null;
     try {
-       token = await getAccessTokenSilently({audience:'casting', scope: AUTH_CASTING_APP_SCOPES});
+       token = await getAccessTokenSilently({audience: REACT_APP_AUTH0_API_AUDIENCE, scope: AUTH_CASTING_APP_SCOPES});
     } catch (e) {
       if (e.error === 'login_required') {
         loginWithRedirect();

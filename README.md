@@ -67,7 +67,7 @@ the tear down method will delete all the testing data and also we should not pop
 * Run `source setup.sh && python -v  test_casting_app.py` (source setup.sh will setup environment required for the application)
 
 #### Starting The Server:
-* Run `gunicorn casting_agency_app:app`. This spins up our server.
+* Run ` source setup.sh && gunicorn casting_agency_app:app`. This spins up our server.
 
 ### [Heroku deployed app](https://prav-casting-agency-app.herokuapp.com/)
 
