@@ -1,6 +1,6 @@
 #!/bin/bash
-export DATABASE_URI="postgresql://postgres@localhost:5432/casting_agency_db"
-export TESTING_DATABASE_URI="postgresql://postgres@localhost:5432/test_casting_agency_db"
+export DATABASE_URL="postgresql://postgres@localhost:5432/casting_agency_db"
+export TESTING_DATABASE_URL="postgresql://postgres@localhost:5432/test_casting_agency_db"
 export AUTH0_DOMAIN="dev-prav-auth.us.auth0.com"
 export AUTH0_API_ALGORITHMS="RS256"
 export AUTH0_API_AUDIENCE="casting"

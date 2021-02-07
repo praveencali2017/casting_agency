@@ -3,7 +3,7 @@ Later move this to env file (setup.sh)
 """
 import os
 from backend.utils import logger
-DATABASE_URI = os.environ.get('DATABASE_URI')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN')
 ALGORITHMS = [os.environ.get('AUTH0_API_ALGORITHMS')]
 AUTH0_API_AUDIENCE = os.environ.get('AUTH0_API_AUDIENCE')
@@ -15,6 +15,6 @@ if TESTING:
     ASSISTANT = os.environ.get('ASSISTANT')
     DIRECTOR = os.environ.get('DIRECTOR')
     PRODUCER = os.environ.get('PRODUCER')
-    DATABASE_URI = os.environ.get('TESTING_DATABASE_URI')
+    DATABASE_URL = os.environ.get('TESTING_DATABASE_URL')
 logger.info("Initialized all the env variables in the"
             " config constants (config.py)!!!")
