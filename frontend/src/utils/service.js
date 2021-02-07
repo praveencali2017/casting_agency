@@ -5,6 +5,7 @@ const MOVIES_API = SERVER_URL+'v1/movies';
 const ACTORS_API = SERVER_URL+'v1/actors';
 const MOVIE_CAST_API = SERVER_URL+'v1/movies_cast';
 const AUTH_DOMAIN = "dev-prav-auth.us.auth0.com";
+const AUTH_CASTING_APP_SCOPES = 'add:actors add:movies delete:movies delete:actors get:actors get:movies manage:cast update:actors update:movies';
 
 const fetchMovies = function(callback, token){
     ajaxRequest(MOVIES_API, 'GET', null, (resData)=>{
@@ -71,4 +72,4 @@ else{
 }
 };
 
-export {SERVER_URL, MOVIES_API, ACTORS_API, MOVIE_CAST_API, fetchMovies, fetchActors, addMovie, addActor, ajaxRequestPost, ajaxRequest, AUTH_DOMAIN};
+export {SERVER_URL, MOVIES_API, ACTORS_API, MOVIE_CAST_API, fetchMovies, fetchActors, addMovie, addActor, ajaxRequestPost, ajaxRequest, AUTH_DOMAIN, AUTH_CASTING_APP_SCOPES};
