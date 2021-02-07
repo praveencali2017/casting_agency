@@ -2,48 +2,36 @@ import unittest
 from casting_agency_app import app
 from datetime import datetime
 from backend.models import db
-from config import AUTH0_DOMAIN, AUTH0_API_AUDIENCE, DATABASE_URI, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
+from config import AUTH0_DOMAIN, AUTH0_API_AUDIENCE,\
+    DATABASE_URI, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
+from config import ASSISTANT, DIRECTOR, PRODUCER
 
 
-def get_user_token(user_type='ep'):
-    import json
-    import requests
-    users = {
-        'ep': {'test_executive_prod@pravcasting.com': 'pravCasting2021'},
-        'cd': {'test_casting_dir@pravcasting.com': 'pravCasting2021'},
-        'ca': {'test_casting_assist@pravcasting.com': 'pravCasting2021'}
+def get_token_headers():
+    ep = {
+        'authorization': f"Bearer {PRODUCER}"
     }
-    url = f'https://{AUTH0_DOMAIN}/oauth/token'
-    headers = {'content-type': 'application/json'}
-    user_email = list(users[user_type].keys())[0]
-    password = users[user_type][user_email]
-    parameter = { "client_id": AUTH0_CLIENT_ID,
-                  "client_secret": AUTH0_CLIENT_SECRET,
-                  "audience": AUTH0_API_AUDIENCE,
-                  "grant_type": "password",
-                  "username": user_email,
-                  "password": password}
-    resdata = json.loads(requests.post(url, json=parameter, headers=headers).text)
-    return resdata['access_token']
+    cd = {
+        'authorization': f"Bearer {DIRECTOR}"
+    }
+    ca = {
+        'authorization': f"Bearer {ASSISTANT}"
+    }
+    return ep, cd, ca
 
 
-headers_ep = {
-            'authorization': f"Bearer {get_user_token('ep')}"
-        }
-headers_cd = {
-            'authorization': f"Bearer {get_user_token('cd')}"
-        }
-headers_ca = {
-    'authorization': f"Bearer {get_user_token('ca')}"
-}
+headers_ep, headers_cd, headers_ca = get_token_headers()
+
 
 class CastingTestCase(unittest.TestCase):
     """
     This class represents the test cases for the casting app
     """
+
     def setUp(self):
         """
-        Executed before each test case. Place to define test variables required for test cases.
+        Executed before each test case.
+        Place to define test variables required for test cases.
         :return:
         """
         from sqlalchemy_utils import create_database, database_exists
@@ -70,10 +58,10 @@ class CastingTestCase(unittest.TestCase):
         Test the post method to add the new movie to the system
         :return: None
         """
-        response = self.client.post('/v1/movies',json={
+        response = self.client.post('/v1/movies', json={
             'title': 'test_movie',
             'release_date': datetime.now()
-        }, headers = headers_ep, content_type = self.req_content_type)
+        }, headers=headers_ep, content_type=self.req_content_type)
         self.assertEqual(200, response.status_code)
         res_data = response.json
         self.assertEqual(True, res_data['success'])
@@ -81,13 +69,14 @@ class CastingTestCase(unittest.TestCase):
 
     def test_add_movie_fail(self):
         """
-        Test the post method fail while adding the new movie to the system (title cannot be null)
+        Test the post method fail
+        while adding the new movie to the system (title cannot be null)
         :return: None
         """
-        response = self.client.post('/v1/movies',json={
+        response = self.client.post('/v1/movies', json={
             'title': None,
             'release_date': datetime.now()
-        }, headers = headers_ep, content_type = self.req_content_type)
+        }, headers=headers_ep, content_type=self.req_content_type)
         self.assertEqual(400, response.status_code)
 
     def test_get_movie_success(self):
@@ -96,16 +85,24 @@ class CastingTestCase(unittest.TestCase):
         :return: None
         """
         self.create_dummy_movie()
-        response = self.client.get('/v1/movies', headers = headers_ep, content_type = self.req_content_type)
+        response = self.client.get(
+            '/v1/movies',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         res_data = response.json
-        self.assertListEqual([1, 200], [len(res_data['data']), response.status_code])
+        self.assertListEqual(
+            [1, 200], [len(res_data['data']), response.status_code])
 
     def test_get_movie_fail(self):
         """
-        Test the get method (Fail), that fetches available movies (Typo error, it has to be /movies)
+        Test the get method (Fail),
+        that fetches available movies (Typo error, it has to be /movies)
         :return: None
         """
-        response = self.client.get('/v1/movie', headers = headers_ep, content_type = self.req_content_type)
+        response = self.client.get(
+            '/v1/movie',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(404, response.status_code)
 
     def test_movie_update(self):
@@ -115,19 +112,28 @@ class CastingTestCase(unittest.TestCase):
         """
         res_data = self.create_dummy_movie()
         movie = res_data['data']
-        response = self.client.patch(f'/v1/movies/{movie["id"]}', json={'title': 'test_movie_update'
-        }, headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.patch(
+            f'/v1/movies/{movie["id"]}',
+            json={
+                'title': 'test_movie_update'},
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual('test_movie_update', response.json['data']['title'])
 
     def test_movie_update_fail(self):
         """
-        Test the patch method for movie update (Failure, Try to update movie, with the movie id that doesn't exists)
+        Test the patch method for movie update
+         (Failure, Try to update movie, with the movie id that doesn't exists)
         :return:
         """
         res_data = self.create_dummy_movie()
         _ = res_data['data']
-        response = self.client.patch(f'/v1/movies/nf', json={'title': 'test_movie_update'
-        }, headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.patch(
+            f'/v1/movies/nf',
+            json={
+                'title': 'test_movie_update'},
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(400, response.status_code)
 
     def test_movie_delete_success(self):
@@ -137,23 +143,28 @@ class CastingTestCase(unittest.TestCase):
         """
         res_data = self.create_dummy_movie()
         movie = res_data['data']
-        response = self.client.delete(f'/v1/movies/{movie["id"]}', headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.delete(
+            f'/v1/movies/{movie["id"]}',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(200, response.status_code)
         response = self.client.get(f'/v1/movies', headers=headers_ep,
-                                      content_type=self.req_content_type)
+                                   content_type=self.req_content_type)
         self.assertEqual(0, len(response.json['data']))
 
     def test_movie_delete_fail(self):
         """
-        Test the movie delete API. Failure (Cannot delete a movie with wrong id)
+        Test the movie delete API.
+        Failure (Cannot delete a movie with wrong id)
         :return:
         """
         res_data = self.create_dummy_movie()
         _ = res_data['data']
-        response = self.client.delete(f'/v1/movies/wrong_id', headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.delete(
+            f'/v1/movies/wrong_id',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(400, response.status_code)
-
-
 
     # Actor API test cases #######
 
@@ -165,18 +176,21 @@ class CastingTestCase(unittest.TestCase):
         response = self.create_dummy_actor()
         self.assertEqual(200, response.status_code)
         res_data = response.json
-        self.assertListEqual(['prav', True], [res_data['data']['name'], res_data['success']])
+        self.assertListEqual(
+            ['prav', True], [res_data['data']['name'], res_data['success']])
 
     def test_add_actor_fail(self):
         """
-        Test the post method, that adds new actor to the system (Should fail, since age is not a number)
+        Test the post method,
+        that adds new actor to the system
+        (Should fail, since age is not a number)
         :return: None
         """
-        response = self.client.post('/v1/actors',json={
+        response = self.client.post('/v1/actors', json={
             'name': 'prav',
             'age': 'NAN',
             'gender': 'male'
-        }, headers = headers_ep, content_type=self.req_content_type)
+        }, headers=headers_ep, content_type=self.req_content_type)
         self.assertEqual(400, response.status_code)
 
     def test_update_actor_success(self):
@@ -193,7 +207,7 @@ class CastingTestCase(unittest.TestCase):
         }, headers=headers_ep, content_type=self.req_content_type)
         self.assertEqual(200, response.status_code)
         res_data = response.json['data']
-        self.assertListEqual(['john', 31],[res_data['name'], res_data['age']])
+        self.assertListEqual(['john', 31], [res_data['name'], res_data['age']])
 
     def test_update_actor_failure(self):
         """
@@ -214,10 +228,14 @@ class CastingTestCase(unittest.TestCase):
         Test fetch actors endpoint.
         :return:
         """
-        # we don't have any unique constraint defined, so let's create same record twice and validate the count
+        # we don't have any unique constraint defined, so let's create same
+        # record twice and validate the count
         _ = self.create_dummy_actor(need_response_obj=False)
         _ = self.create_dummy_actor(need_response_obj=False)
-        response = self.client.get(f'/v1/actors', headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.get(
+            f'/v1/actors',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         res_data = response.json['data']
         self.assertEqual(2, len(res_data))
 
@@ -226,10 +244,14 @@ class CastingTestCase(unittest.TestCase):
         Test fetch actors endpoint. Failure (Wrong endpoint : typo)
         :return:
         """
-        # we don't have any unique constraint defined, so let's create same record twice and validate the count
+        # we don't have any unique constraint defined, so let's create same
+        # record twice and validate the count
         _ = self.create_dummy_actor(need_response_obj=False)
         _ = self.create_dummy_actor(need_response_obj=False)
-        response = self.client.get(f'/v1/actor', headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.get(
+            f'/v1/actor',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(404, response.status_code)
 
     def test_delete_actors_success(self):
@@ -238,25 +260,34 @@ class CastingTestCase(unittest.TestCase):
         :return:
         """
         actor = self.create_dummy_actor(need_response_obj=False)['data']
-        response = self.client.delete(f'/v1/actors/{actor["id"]}', headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.delete(
+            f'/v1/actors/{actor["id"]}',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(200, response.status_code)
         self.assertEqual(True, response.json['success'])
 
     def test_delete_actors_failure(self):
         """
-        Test the delete actors endpoint. Failure(Trying to delete with actor id that is not found)
+        Test the delete actors endpoint.
+         Failure(Trying to delete with actor id that is not found)
         :return:
         """
         _ = self.create_dummy_actor(need_response_obj=False)['data']
-        response = self.client.delete(f'/v1/actors/22', headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.delete(
+            f'/v1/actors/22',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(400, response.status_code)
         self.assertEqual(False, response.json['success'])
 
     # Movie cast API test cases !!!
     def test_movie_cast_add_success(self):
         """
-        Creates movie, actor and associate both (inserts to movie_actors_link table).
-        Later will validate whether the endpoint returns success on association
+        Creates movie, actor and associate both
+        (inserts to movie_actors_link table).
+        Later will validate whether the endpoint
+        returns success on association
         :return:
         """
         movie = self.create_dummy_movie()['data']
@@ -265,22 +296,23 @@ class CastingTestCase(unittest.TestCase):
             'movie_id': movie['id'],
             'actor_id': actor['id']
         }, headers=headers_ep, content_type=self.req_content_type)
-        self.assertEqual(200,response.status_code)
+        self.assertEqual(200, response.status_code)
         self.assertEqual(True, response.json['success'])
 
     def test_movie_cast_add_failure(self):
         """
         Check for actor id, that doesn't exists.
-        Failure: Since there is no id exists in the system and association should cause error
+        Failure: Since there is no id exists in the system
+        and association should cause error
         :return:
         """
         movie = self.create_dummy_movie()['data']
         actor = self.create_dummy_actor(need_response_obj=False)['data']
         response = self.client.post('/v1/movies_cast', json={
             'movie_id': movie['id'],
-            'actor_id': int(actor['id'])+1
+            'actor_id': int(actor['id']) + 1
         }, headers=headers_ep, content_type=self.req_content_type)
-        self.assertEqual(400,response.status_code)
+        self.assertEqual(400, response.status_code)
         self.assertEqual(False, response.json['success'])
 
     def test_movie_cast_get_success(self):
@@ -295,12 +327,16 @@ class CastingTestCase(unittest.TestCase):
             'movie_id': movie['id'],
             'actor_id': actor['id']
         }, headers=headers_ep, content_type=self.req_content_type)
-        # Now, let's try to fetch from movies_cast endpoint. It should give back movie and actor ids (association)
-        res_validate = self.client.get('/v1/movies_cast', headers=headers_ep, content_type=self.req_content_type)
+        # Now, let's try to fetch from movies_cast endpoint. It should give
+        # back movie and actor ids (association)
+        res_validate = self.client.get(
+            '/v1/movies_cast',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         res_data = res_validate.json['data'][0]
         res_actor = res_data['actors'][0]
         res_movie = res_data['movie']
-        self.assertEqual(200,res_validate.status_code)
+        self.assertEqual(200, res_validate.status_code)
         self.assertEqual(movie, res_movie)
         self.assertEqual(actor, res_actor)
 
@@ -316,8 +352,12 @@ class CastingTestCase(unittest.TestCase):
             'movie_id': movie['id'],
             'actor_id': actor['id']
         }, headers=headers_ep, content_type=self.req_content_type)
-        # Now, let's try to fetch from movies_cast endpoint. Should Fail, since there is a typo in the endpoint url
-        res_validate = self.client.get('/v1/movie_cast', headers=headers_ep, content_type=self.req_content_type)
+        # Now, let's try to fetch from movies_cast endpoint. Should Fail, since
+        # there is a typo in the endpoint url
+        res_validate = self.client.get(
+            '/v1/movie_cast',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(404, res_validate.status_code)
 
     def test_delete_actor_from_movie_success(self):
@@ -333,8 +373,10 @@ class CastingTestCase(unittest.TestCase):
             'actor_id': actor['id']
         }, headers=headers_ep, content_type=self.req_content_type)
         # Let's use the movie's id and actor's id to delete the association
-        response = self.client.delete(f'/v1/movies_cast?movie_id={movie["id"]}&actor_id={actor["id"]}',
-                                      headers=headers_ep, content_type=self.req_content_type)
+        response = self.client.delete(
+            f'/v1/movies_cast?movie_id={movie["id"]}&actor_id={actor["id"]}',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(200, response.status_code)
         self.assertEqual(True, response.json['success'])
 
@@ -351,9 +393,11 @@ class CastingTestCase(unittest.TestCase):
             'actor_id': actor['id']
         }, headers=headers_ep, content_type=self.req_content_type)
         # Let's use the dummy movie id to break the case (Not found)
-        movie_id = int(movie["id"]+10)
-        response = self.client.delete(f'/v1/movies_cast?movie_id={movie_id}&actor_id={actor["id"]}',
-                                      headers=headers_ep, content_type=self.req_content_type)
+        movie_id = int(movie["id"] + 10)
+        response = self.client.delete(
+            f'/v1/movies_cast?movie_id={movie_id}&actor_id={actor["id"]}',
+            headers=headers_ep,
+            content_type=self.req_content_type)
         self.assertEqual(400, response.status_code)
         self.assertEqual(False, response.json['success'])
 
@@ -371,7 +415,9 @@ class CastingTestCase(unittest.TestCase):
 
     def test_executive_producer_create_actor(self):
         """
-        Executive producer should be able to create a actor (Since this role has all the permissions of the casting director)
+        Executive producer should be able to
+        create a actor (Since this role has all the permissions
+         of the casting director)
         :return:
         """
         response = self.client.post('/v1/actors', json={
@@ -383,7 +429,8 @@ class CastingTestCase(unittest.TestCase):
 
     def test_casting_director_create_movie(self):
         """
-        Casting director cannot create a movie. This should raise unauthorized error in the response
+        Casting director cannot create a movie.
+        This should raise unauthorized error in the response
         :return:
         """
         response = self.client.post('/v1/movies', json={
@@ -422,7 +469,10 @@ class CastingTestCase(unittest.TestCase):
         :return:
         """
         actor = self.create_dummy_actor(need_response_obj=False)['data']
-        response = self.client.get('/v1/actors', headers=headers_ca, content_type=self.req_content_type)
+        response = self.client.get(
+            '/v1/actors',
+            headers=headers_ca,
+            content_type=self.req_content_type)
         self.assertEqual(200, response.status_code)
         self.assertEqual(actor['name'], response.json['data'][0]['name'])
 
@@ -444,6 +494,5 @@ class CastingTestCase(unittest.TestCase):
         return response if need_response_obj else response.json
 
 
-
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
