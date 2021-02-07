@@ -14,6 +14,7 @@ ReactDOM.render(
     clientId={REACT_APP_AUTH0_CLIENT_ID}
     redirectUri={window.location.origin}
     audience={REACT_APP_AUTH0_API_AUDIENCE}
+    scope='add:actors add:movies delete:movies delete:actors get:actors get:movies manage:cast update:actors update:movies'
   >
     <App />
   </Auth0Provider>,
