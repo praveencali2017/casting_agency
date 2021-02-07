@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
-from config import DATABASE_URI
+from config import DATABASE_URL
 # Comment in debug mode!!!
 from casting_agency_app import app
 from sqlalchemy.orm import relationship
@@ -21,7 +21,7 @@ def setup_db(app, db_uri):
 
 
 # Wire db to the app. Comment in debug mode
-setup_db(app, DATABASE_URI)
+setup_db(app, DATABASE_URL)
 
 """
 Models definitions. Includes a helper class that defines
